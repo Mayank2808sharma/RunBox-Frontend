@@ -1,44 +1,86 @@
-"use client"
-import React, { useRef } from "react";
+"use client";
+
+import React, { useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
-
-function Page() {
+import axios from "axios";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { ComboboxDemo } from "@/components/dropdown/dropdown";
+import { OutputBox } from "@/components/outputBox/output";
+const editorPage = () => {
   const editorRef = useRef(null);
-
-  function handleEditorDidMount(editor, monaco) {
+  const [language, setLanguage] = useState("cpp");
+  const [input, setInput] = useState("");
+  const [theme, setTheme] = useState("light");
+  const [code, setCode] = useState("");
+  const [output, setOutput] = useState("Output will be shown here");
+  function handleEditorDidMount(editor: any, monaco: any) {
     editorRef.current = editor;
   }
 
-  function showValue() {
-    alert(editorRef.current.getValue());
+  async function sendRequest() {
+    console.log(language, code, input, theme);
+    // const response = await axios.post("http://localhost:8001/code/compile", {
+    //   code,
+    //   language_id: 71,
+    //   input,
+    // });
+    // console.log(response.data);
+    setOutput("Check console for the key");
+    setInput("");
+    setCode("");
   }
-
   return (
-    <main className="flex justify-between">
-      <div className="w-1/2">
-        <button className="mt-4" onClick={showValue}>
-          Show value
-        </button>
+    <div className="flex h-screen bg-white">
+      {/* Code Editor */}
+      <div className="flex-1">
         <Editor
-          height="90vh"
-          width="50vw"
-          defaultLanguage="cpp"
-          defaultValue="// some comment"
+          language={language}
+          defaultValue="// Start writing your code here"
           onMount={handleEditorDidMount}
+          theme={theme}
+          onChange={() => setCode(editorRef.current.getValue())}
+          value={code}
         />
       </div>
-      <div className="w-1/2">
-        <label htmlFor="input" className="block mt-4">Enter the input</label>
-        <input type="text" id="input" className="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
-        <select name="language" id="language" className="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-          <option value="cpp">C++</option>
-          <option value="java">Java</option>
-          <option value="python">Python</option>
-          <option value="javascript">JavaScript</option>
-        </select>
+      {/* Sidebar */}
+      <div className="w-98 bg-gray-200 p-4">
+        {/* Theme Selector */}
+        <div>
+        <Label htmlFor="theme">Theme</Label>
+        <br />
+        <ComboboxDemo value={theme} setValue={setTheme} />
+        {/* Language Selector */}
+        </div>
+        <div>
+        <Label htmlFor="language">Language</Label>
+        <br />
+        <ComboboxDemo value={theme} setValue={setTheme} />
+        </div>
+        
+        {/* Button to Compile/Run Code */}
+        
+        {/* Output Display */}
+        <OutputBox text={output}/>
+        <div className="mt-20">
+        <Label htmlFor="input">Input</Label>
+        <br />
+        <Textarea
+        id="input"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder="Enter the Input"
+        className="w-96"
+        />
+        <Button onClick={sendRequest} className="py-2 px-4 mt-4 ml-72">
+          Run Code
+        </Button>
+        </div>
       </div>
-    </main>
+    </div>
   );
-}
+};
 
-export default Page;
+export default editorPage;
